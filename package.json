@@ -1,7 +1,29 @@
 {
-  "name": "app",
+  "name": "cryptovault-exchange",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
+  "description": "Non-custodial XPUB-based crypto deposit front-end (BTC/USDT/USDC) built with React + Vite.",
+  "author": "CryptoVault Exchange contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/laikhtman/CryptoVault-Exchange.git"
+  },
+  "bugs": {
+    "url": "https://github.com/laikhtman/CryptoVault-Exchange/issues"
+  },
+  "keywords": [
+    "xpub",
+    "hd-wallet",
+    "non-custodial",
+    "bitcoin",
+    "usdt",
+    "usdc",
+    "react",
+    "vite",
+    "crypto",
+    "qr"
+  ],
   "type": "module",
   "scripts": {
     "dev": "vite",

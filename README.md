@@ -1,6 +1,8 @@
 # CryptoVault Exchange - XPUB-Derived Wallet Layer
 
-CryptoVault Exchange is a front-end proof-of-concept that models how an exchange could link every client to deterministic deposit addresses derived from cold-storage XPUBs—without ever exposing private keys in the browser.
+![License](https://img.shields.io/badge/license-MIT-green) ![Build](https://img.shields.io/badge/build-vite-success) ![Tech](https://img.shields.io/badge/stack-React%20%2B%20TypeScript-blue) ![Status](https://img.shields.io/badge/state-POC-orange)
+
+CryptoVault Exchange is a front-end proof-of-concept that models how an exchange could link every client to deterministic deposit addresses derived from cold-storage XPUBs—without ever exposing private keys in the browser. Non-custodial, XPUB-only, and built with React + Vite.
 
 ## What This POC Demonstrates
 
@@ -32,15 +34,19 @@ CryptoVault Exchange is a front-end proof-of-concept that models how an exchange
 - `cryptovault_config_v1` — XPUBs + Trezor connection flag
 - `cryptovault_clients_v1` — client list with `derivationIndex`
 - `cryptovault_deposits_v1` — mock deposit events created when addresses are derived
-- `cryptovault_generated_wallets_v1` — batch-generated wallets from the Wallets view
+- `cryptovault_generated_wallets_v1` - batch-generated wallets from the Wallets view
+
+## Topics / Tags
+
+Add these as GitHub topics to improve discoverability: `cryptocurrency` `xpub` `wallet-derivation` `non-custodial` `react` `vite` `bitcoin` `usdt` `usdc` `hd-wallet` `qr-code`
 
 ## Running Locally
 
 Prereqs: Node.js (LTS), npm (or another Node package manager).
 
 1. Install dependencies: `npm install`
-2. (Optional) Create `.env.local` for explorer sync:  
-   - `VITE_ETHERSCAN_API_KEY=<your_key>` (enables ETH balance/tx sync in Wallets)
+2. Copy `.env.example` to `.env.local` and fill values (optional):
+   - `VITE_ETHERSCAN_API_KEY=<your_key>` (enables ETH/USDT/USDC balance/tx sync in Wallets)
 3. Start dev server: `npm run dev`
 4. Open the printed URL (default `http://localhost:5173`).
 
