@@ -50,8 +50,19 @@ export type DepositEvent = {
   id: string;
   clientId: number;
   clientName: string;
-  asset: "BTC" | "USDT";
+  asset: "BTC" | "USDT" | "USDC";
   derivationIndex: number;
   address: string;
   createdAt: string;
+};
+
+export type GeneratedWallet = {
+  id: string;
+  asset: "BTC" | "ETH";
+  derivationIndex: number;
+  address: string;
+  createdAt: string;
+  txCount?: number;
+  balanceWei?: string; // ETH balance in wei
+  balanceSats?: number; // BTC balance in sats
 };

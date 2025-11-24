@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { ShieldCheck, Settings, RefreshCw, CheckCircle2, Download, Upload } from "lucide-react";
+import { Mnemonic, HDNodeWallet } from "ethers";
 import trezorLogo from "../trezor.svg";
 import { AppConfig, INITIAL_CONFIG } from "../models";
 
@@ -15,6 +16,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
   const [ethError, setEthError] = useState<string | null>(null);
   const [stateJson, setStateJson] = useState("");
   const [stateMessage, setStateMessage] = useState<string | null>(null);
+  const [seedPhrase, setSeedPhrase] = useState("");
+  const [seedMessage, setSeedMessage] = useState<string | null>(null);
 
   const CONFIG_STORAGE_KEY = "cryptovault_config_v1";
   const CLIENTS_STORAGE_KEY = "cryptovault_clients_v1";
@@ -24,8 +27,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
     if (!xpub.trim()) {
       return "XPUB is required";
     }
-    if (!xpub.startsWith("xpub")) {
-      return 'XPUB must start with "xpub" (mainnet)';
+    if (!xpub.startsWith("xpub") && !xpub.startsWith("zpub")) {
+      return 'BTC extended key should start with "xpub" or "zpub" (mainnet)';
     }
     if (xpub.length < 100 || xpub.length > 120) {
       return "XPUB length looks unusual; please verify";
@@ -74,6 +77,45 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
       setSuccessMsg("Trezor connected successfully! Master Public Keys imported.");
       setTimeout(() => setSuccessMsg(""), 3000);
     }, 1500);
+  };
+
+  const handleDeriveFromSeed = () => {
+    try {
+      const phrase = seedPhrase.trim();
+      if (!phrase) {
+        setSeedMessage("Enter a BIP39 seed phrase to derive XPUBs (test phrases only).");
+        return;
+      }
+
+      const words = phrase.split(/\s+/);
+      if (words.length < 12 || words.length > 24) {
+        setSeedMessage("Seed phrase should typically be 12–24 words.");
+        return;
+      }
+
+      const mnemonic = Mnemonic.fromPhrase(phrase);
+      const root = HDNodeWallet.fromSeed(mnemonic.computeSeed());
+
+      const btcAccount = root.derivePath("m/84'/0'/0'");
+      const btcXpub = btcAccount.neuter().extendedKey;
+
+      const ethAccount = root.derivePath("m/44'/60'/0'");
+      const ethXpub = ethAccount.neuter().extendedKey;
+
+      setConfig((prev) => ({
+        ...prev,
+        btcMasterXpub: btcXpub,
+        ethMasterXpub: ethXpub,
+      }));
+
+      setSeedPhrase("");
+      setSeedMessage("XPUBs derived from seed phrase in-memory only. Seed was not persisted.");
+      setBtcError(null);
+      setEthError(null);
+    } catch (e) {
+      console.error(e);
+      setSeedMessage("Could not parse or derive from the provided seed phrase. Please check it and try again.");
+    }
   };
 
   const handleExportState = () => {
@@ -201,7 +243,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
           <div className="space-y-6">
             <div className="group">
               <label className="text-xs uppercase tracking-wider text-slate-500 font-bold mb-1 block">
-                Bitcoin Master XPUB (SegWit)
+                Bitcoin Master XPUB / ZPUB (SegWit)
               </label>
               <div className="flex flex-col gap-1">
                 <input
@@ -214,9 +256,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
                 {btcError && <p className="text-xs text-red-400">{btcError}</p>}
                 {!btcError && (
                   <p className="text-[10px] text-slate-500">
-                    Expected: mainnet <code className="font-mono">xpub...</code> from a SegWit account
-                    (e.g. <code className="font-mono">m/84&apos;/0&apos;/0&apos;</code>). Testnet keys
-                    are not supported in this POC.
+                    Expected: mainnet <code className="font-mono">xpub...</code> or{" "}
+                    <code className="font-mono">zpub...</code> from a SegWit account (e.g.{" "}
+                    <code className="font-mono">m/84&apos;/0&apos;/0&apos;</code>). Testnet keys are not
+                    supported in this POC.
                   </p>
                 )}
               </div>
@@ -251,6 +294,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
                 The app uses it only to derive read-only USDT (ERC20) deposit addresses per client.
               </p>
             </div>
+          </div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 space-y-3">
+          <h3 className="text-sm font-semibold text-white mb-1">Seed Phrase (POC-only, unsafe)</h3>
+          <p className="text-xs text-amber-400">
+            Never enter a real production seed here. This helper is for offline test phrases only. The
+            phrase is used in-memory to derive XPUBs and is not written to localStorage.
+          </p>
+          <textarea
+            value={seedPhrase}
+            onChange={(e) => setSeedPhrase(e.target.value)}
+            rows={3}
+            className="w-full bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-200 font-mono p-2 resize-y"
+            placeholder="example: goose window ... (test seed only)"
+          />
+          <div className="flex items-center justify-between">
+            <button
+              type="button"
+              onClick={handleDeriveFromSeed}
+              className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs bg-emerald-600 text-white hover:bg-emerald-500 disabled:opacity-50"
+            >
+              Derive BTC &amp; ETH XPUBs
+            </button>
+            {seedMessage && <p className="text-[11px] text-slate-400 text-right">{seedMessage}</p>}
           </div>
         </div>
 

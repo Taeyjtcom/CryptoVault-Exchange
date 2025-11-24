@@ -2,124 +2,69 @@
   <img width="1200" height="475" alt="CryptoVault Exchange" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
 </div>
 
-# CryptoVault Exchange – Cold Storage Linked Client Wallets
+# CryptoVault Exchange - XPUB-Derived Wallet Layer
 
-CryptoVault Exchange is a front‑end demo of a trading platform’s wallet layer.  
-It shows how an exchange can link each client to a unique on‑chain deposit address that is derived from cold‑storage master public keys (XPUBs), without ever exposing private keys in the browser.
+CryptoVault Exchange is a front-end proof-of-concept that models how an exchange could link every client to deterministic deposit addresses derived from cold-storage XPUBs—without ever exposing private keys in the browser.
 
-The app focuses on:
+## What This POC Demonstrates
 
-- A client dashboard with BTC, USDT, and USD balances
-- A "Deposit Funds" flow that derives per-client USDT (ERC-20) and BTC addresses from XPUBs
-- QR-code based deposit instructions and address copy helpers (generated locally)
-- An admin panel that simulates connecting a Trezor hardware wallet and importing XPUBs
-- A recent "deposit activity" table based on locally derived addresses (mock data)
+- XPUB-only custody model: Admin supplies BTC and ETH XPUBs; addresses are derived locally per-client and persisted in `localStorage` only.
+- Client dashboard: Shows mocked balances and a recent deposit activity table populated from locally derived addresses.
+- Deposit flow: Per-client deposit modal derives USDT (ERC20) or BTC addresses, renders a QR code, and logs a mock deposit event for the activity table.
+- HD Wallet generator: Batch-derive BTC or ETH/USDT paths with configurable start index and count; optional read-only balance/tx sync from Etherscan (ETH) or Blockstream (BTC).
+- Admin controls: XPUB validation, simulated Trezor connect, unsafe-but-handy seed-phrase XPUB derivation (for demos), and JSON export/import of app state.
 
-> Note: This is a UI/architecture demo only. It does **not** connect to real wallets, broadcast transactions, or implement a matching engine. Do not use it to secure or move real funds.
+> This is a UI/architecture demo. It does **not** broadcast transactions or handle real custody. Use test data only.
 
-## How It Works
+## Derivation Model
 
-- The admin panel lets you paste **master public keys (XPUBs)** for BTC and ETH (no private keys are ever stored).
-- XPUB configuration is saved in your browser's `localStorage` so it persists across reloads and stays on your machine.
-- For a given client, the app derives:
-  - A USDT (ERC-20) deposit address from the ETH XPUB using `ethers` and standard HD paths.
-  - A BTC deposit address using a deterministic HD derivation helper (for UI demonstration only, not a full Bitcoin implementation).
-- Each client gets a deterministic deposit address from the HD tree, so deposits can be credited on the exchange side while funds stay under cold-wallet control.
+- USDT (ERC20): `m/44'/60'/0'/0/index` derived from the provided ETH XPUB (read-only).
+- BTC: `m/84'/0'/0'/0/index` derived from a BTC XPUB or zpub (zpubs are normalized to xpub internally for display). Returned addresses are deterministic, bech32-style strings for demo purposes.
+- Client-specific index: Each client is assigned a `derivationIndex` (see `models.ts`), ensuring deterministic per-client deposit addresses from the shared XPUBs.
 
-### Derivation Paths (POC)
+## Views & Data Flow
 
-- USDT (ETH/XPUB): `m/44'/60'/0'/0/index` (external chain, index per client).
-- BTC (XPUB): simulated `m/84'/0'/0'/0/index`-style external chain; derived via a generic HD node helper from `ethers` to produce a stable, bech32-like address string for UI purposes.
+- **Dashboard** (`ClientDashboard`): Displays demo balances and the Recent Deposit Activity table, which updates whenever a deposit address is derived in the modal.
+- **Deposit Modal** (`DepositModal`): Generates QR + address for BTC or USDT, copies to clipboard, and records a mock deposit event tied to the selected client and derivation index.
+- **Wallets** (`WalletsView`): Derive N addresses starting from an index for BTC or ETH. Supports optional read-only sync:
+  - ETH via Etherscan (`VITE_ETHERSCAN_API_KEY` required)
+  - BTC via Blockstream Explorer (no key required)
+- **Admin** (`AdminPanel`): Paste XPUBs, reset config, simulate Trezor connect, derive XPUBs from a seed phrase (POC only), and export/import state JSON.
 
-> These paths are for demonstration only; always verify derivation paths and networks before using XPUBs in production systems.
+### Local Persistence (browser `localStorage`)
 
-## POC Flow
-
-End-to-end, the proof-of-concept behaves as follows:
-
-1. Admin opens the app and pastes BTC and ETH XPUBs into the Admin panel.
-2. XPUBs are validated and stored locally in `localStorage` (no server-side storage).
-3. For each client, the app derives a dedicated USDT (ERC-20) and BTC deposit address based on the client's `derivationIndex`.
-4. When the user clicks "Deposit Funds", the modal derives the appropriate address for the selected client + asset and shows a locally generated QR code.
-5. Each time an address is successfully derived, a mock "deposit event" is recorded and displayed in the Recent Deposit Activity table.
-
-## Tech Stack
-
-- `React` + `TypeScript` single‑page app
-- `Vite` dev/build tooling
-- `ethers` for HD wallet (XPUB) address derivation
-- `lucide-react` for icons
-- `Tailwind CSS` via CDN for styling
+- `cryptovault_config_v1` — XPUBs + Trezor connection flag
+- `cryptovault_clients_v1` — client list with `derivationIndex`
+- `cryptovault_deposits_v1` — mock deposit events created when addresses are derived
+- `cryptovault_generated_wallets_v1` — batch-generated wallets from the Wallets view
 
 ## Running Locally
 
-**Prerequisites**
+Prereqs: Node.js (LTS), npm (or another Node package manager).
 
-- Node.js (LTS recommended)
-- npm or another Node package manager
-
-**Steps**
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. (Optional) Create/update `.env.local` as needed for your environment.  
-   The current UI demo does not require any external API keys.
-3. Start the dev server:
-   ```bash
-   npm run dev
-   ```
-4. Open the printed local URL (for example `http://localhost:5173`) in your browser.
-
-## Project Structure
-
-- `index.html` - HTML shell and Tailwind CDN setup
-- `index.tsx` - Main React application shell, layout, and routing between views
-- `models.ts` - Shared TypeScript models and initial config/client data
-- `crypto.ts` - XPUB-based address derivation helpers (USDT/BTC)
-- `components/AdminPanel.tsx` - Admin UI for XPUB configuration, security model, and state export/import
-- `components/DepositModal.tsx` - Per-client deposit modal with derived address + QR flow
-- `components/ClientDashboard.tsx` - Dashboard view and mocked recent deposit activity
-- `vite.config.ts` / `tsconfig.json` - Build and TypeScript configuration
-
-## Configuration & XPUBs
-
-- BTC XPUB: expected to be a mainnet SegWit account XPUB (e.g. `m/84'/0'/0'`).
-- ETH XPUB (USDT-ERC20): expected to be a mainnet ETH account-level XPUB for `m/44'/60'/0'`.
-- XPUBs are stored only in the browser's `localStorage` under `cryptovault_config_v1`.
-- You can reset XPUBs at any time from the Admin panel using "Reset XPUB configuration".
-- A JSON export/import section in the Admin panel lets you back up or restore `config`, `clients`, and `deposits`.
-
-## No External Integrations
-
-- No exchange APIs, order books, or account services are called.
-- No blockchain explorer APIs are used; activity is based purely on locally derived addresses.
-- QR codes are rendered locally using a React QR library; there are no external QR code HTTP calls.
+1. Install dependencies: `npm install`
+2. (Optional) Create `.env.local` for explorer sync:  
+   - `VITE_ETHERSCAN_API_KEY=<your_key>` (enables ETH balance/tx sync in Wallets)
+3. Start dev server: `npm run dev`
+4. Open the printed URL (default `http://localhost:5173`).
 
 ## How to Demo
 
-1. **Open Admin panel**  
-   - Start the app, go to "Admin Settings".
-   - Paste your BTC XPUB and ETH XPUB (USDT-ERC20) into the corresponding fields.
+1) Go to **Admin Settings**, paste BTC and ETH XPUBs (or use the seed phrase helper for demo-only XPUBs).  
+2) Optional: click **Connect Trezor (Simulated)** to auto-fill an ETH XPUB.  
+3) Switch to **Wallets** to batch-derive addresses (choose asset, start index, count). Optionally sync balances via explorers.  
+4) Return to **Dashboard**, pick the active client, click **Deposit Funds**, choose BTC or USDT, and show the QR/address. A mock activity row is recorded automatically.  
+5) Use **Export/Import State** in Admin to show how client/config/deposit data can be backed up locally.
 
-2. **Configure clients**  
-   - (Current POC) Work with the seeded demo client; future iterations can add a full client-management UI.
+## Tech Stack
 
-3. **Generate deposit addresses**  
-   - Switch back to the main dashboard.
-   - Ensure the desired client is selected in the header dropdown.
-   - Click "Deposit Funds", choose USDT or BTC, and note the derived address + QR.
+- React + TypeScript + Vite single-page app
+- `ethers` for HD wallet derivation, base58/zpub normalization
+- `qrcode.react` for QR rendering, `lucide-react` for icons
+- Tailwind via CDN for styling
 
-4. **Show activity**  
-   - Close the modal and scroll to the Recent Deposit Activity table.
-   - Point out that entries are tied to client, asset, derivation index, and derived address, and are persisted locally.
+## Limitations & Warnings
 
-5. **Reset / export state**  
-   - In Admin, demonstrate the XPUB reset button and the JSON export/import section to show how the POC can be backed up or restored.
-
-## Disclaimer
-
-This repository is intended for demonstration, prototyping, and educational purposes.  
-It omits many production concerns (KYC/AML, full audit trails, withdrawal flows, and real hardware‑wallet integration).  
-Do not deploy as‑is to manage real cryptocurrency funds.
+- No real custody, signing, or transaction broadcast; activity is simulated except optional explorer lookups.  
+- Seed-phrase helper is for throwaway demo phrases only; never use production secrets here.  
+- Not production-ready (missing KYC/AML, withdrawals, auditing, multi-sig, HSM flows, etc.).

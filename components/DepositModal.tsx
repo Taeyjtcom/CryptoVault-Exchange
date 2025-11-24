@@ -1,15 +1,18 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { AlertCircle, LogOut, QrCode, RefreshCw, ShieldCheck, Copy } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import { AppConfig, UserProfile } from "../models";
 import { deriveUsdtAddress, deriveBtcAddress } from "../crypto";
+import usdtLogo from "../assets/tokens/usdt.svg";
+import usdcLogo from "../assets/tokens/usdc.png";
+import btcLogo from "../assets/tokens/bitcoin.webp";
 
 type DepositModalProps = {
   isOpen: boolean;
   onClose: () => void;
   user: UserProfile;
   config: AppConfig;
-  onRecordDeposit: (params: { client: UserProfile; asset: "BTC" | "USDT"; address: string }) => void;
+  onRecordDeposit: (params: { client: UserProfile; asset: "BTC" | "USDT" | "USDC"; address: string }) => void;
 };
 
 export const DepositModal: React.FC<DepositModalProps> = ({
@@ -19,22 +22,34 @@ export const DepositModal: React.FC<DepositModalProps> = ({
   config,
   onRecordDeposit,
 }) => {
-  const [asset, setAsset] = useState<"BTC" | "USDT">("USDT");
+  const AssetIcon = ({ type }: { type: "USDT" | "USDC" | "BTC" }) => {
+    if (type === "USDT") {
+      return <img src={usdtLogo} alt="USDT" className="h-6 w-6 rounded-full shadow-sm" />;
+    }
+    if (type === "USDC") {
+      return <img src={usdcLogo} alt="USDC" className="h-6 w-6 rounded-full shadow-sm" />;
+    }
+    return <img src={btcLogo} alt="BTC" className="h-6 w-6 rounded-full shadow-sm" />;
+  };
+
+  const [asset, setAsset] = useState<"BTC" | "USDT" | "USDC">("USDT");
   const [address, setAddress] = useState("");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lastRecordedKey, setLastRecordedKey] = useState<string | null>(null);
+  const [amount, setAmount] = useState<string>("");
+  const [amountCurrency, setAmountCurrency] = useState<"ASSET" | "USD">("ASSET");
 
   useEffect(() => {
     if (isOpen) {
       setLoading(true);
       setError(null);
       const timer = setTimeout(() => {
-        if (asset === "USDT") {
+        if (asset === "USDT" || asset === "USDC") {
           const addr = deriveUsdtAddress(config.ethMasterXpub, user.derivationIndex);
           if (!addr || addr.startsWith("Error:")) {
-            setError("Unable to derive USDT address. Please check your ETH XPUB in Admin Settings.");
+            setError("Unable to derive ERC20 address. Please check your ETH XPUB in Admin Settings.");
             setAddress("");
           } else {
             setAddress(addr);
@@ -69,6 +84,41 @@ export const DepositModal: React.FC<DepositModalProps> = ({
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const parsedAmount = useMemo(() => {
+    const numeric = parseFloat(amount);
+    if (!amount || Number.isNaN(numeric) || numeric <= 0) return null;
+    return numeric;
+  }, [amount]);
+
+  const qrValue = useMemo(() => {
+    if (!address) return "Waiting for address";
+
+    // USDT (ERC20) — use EIP-681 style transfer with mainnet USDT contract.
+    if (asset === "USDT" || asset === "USDC") {
+      const contract =
+        asset === "USDT" ? "0xdAC17F958D2ee523a2206206994597C13D831ec7" : "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
+
+      if (parsedAmount) {
+        const value = Math.round(parsedAmount * 1_000_000); // USDT/USDC use 6 decimals
+        return `ethereum:${contract}/transfer?address=${address}&uint256=${value}`;
+      }
+      return `ethereum:${contract}/transfer?address=${address}`;
+    }
+
+    // BTC — BIP21 with optional amount in BTC. If user enters USD, embed as memo.
+    if (asset === "BTC" && parsedAmount && amountCurrency === "ASSET") {
+      const amt = parsedAmount.toFixed(8);
+      return `bitcoin:${address}?amount=${amt}`;
+    }
+
+    if (asset === "BTC" && parsedAmount && amountCurrency === "USD") {
+      const memo = encodeURIComponent(`USD ${parsedAmount.toFixed(2)}`);
+      return `bitcoin:${address}?message=${memo}`;
+    }
+
+    return address;
+  }, [address, asset, parsedAmount, amountCurrency]);
+
   if (!isOpen) return null;
 
   return (
@@ -86,24 +136,42 @@ export const DepositModal: React.FC<DepositModalProps> = ({
 
         <div className="p-6 space-y-6">
           {/* Asset Selector */}
-          <div className="grid grid-cols-2 gap-2 bg-slate-800 p-1 rounded-xl">
+          <div className="grid grid-cols-3 gap-2 bg-slate-800 p-1 rounded-xl">
             <button
               onClick={() => setAsset("USDT")}
-              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                asset === "USDT" ? "bg-emerald-600 text-white shadow-lg" : "text-slate-400 hover:text-white"
+              className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                asset === "USDT"
+                  ? "bg-emerald-600 text-white shadow-lg shadow-emerald-500/30"
+                  : "text-slate-300 hover:text-white"
               }`}
             >
-              <div className="w-2 h-2 rounded-full bg-white"></div>
-              USDT (ERC20)
+              <AssetIcon type="USDT" />
+              <span>USDT</span>
+              <span className="text-[10px] text-emerald-100/80">ERC20</span>
+            </button>
+            <button
+              onClick={() => setAsset("USDC")}
+              className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                asset === "USDC"
+                  ? "bg-sky-500 text-white shadow-lg shadow-sky-500/30"
+                  : "text-slate-300 hover:text-white"
+              }`}
+            >
+              <AssetIcon type="USDC" />
+              <span>USDC</span>
+              <span className="text-[10px] text-sky-100/90">ERC20</span>
             </button>
             <button
               onClick={() => setAsset("BTC")}
-              className={`py-2 px-4 rounded-lg text-sm font-medium transition-all flex items-center justify-center gap-2 ${
-                asset === "BTC" ? "bg-orange-500 text-white shadow-lg" : "text-slate-400 hover:text-white"
+              className={`flex flex-col items-center gap-1 rounded-lg px-3 py-2 text-xs font-semibold transition-all ${
+                asset === "BTC"
+                  ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30"
+                  : "text-slate-300 hover:text-white"
               }`}
             >
-              <div className="w-2 h-2 rounded-full bg-white"></div>
-              Bitcoin
+              <AssetIcon type="BTC" />
+              <span>BTC</span>
+              <span className="text-[10px] text-orange-100/90">SegWit</span>
             </button>
           </div>
 
@@ -112,11 +180,15 @@ export const DepositModal: React.FC<DepositModalProps> = ({
             className={`border p-4 rounded-xl flex gap-3 transition-colors ${
               asset === "USDT"
                 ? "bg-emerald-900/10 border-emerald-500/20"
-                : "bg-orange-900/10 border-orange-500/20"
+                : asset === "USDC"
+                  ? "bg-sky-900/10 border-sky-500/20"
+                  : "bg-orange-900/10 border-orange-500/20"
             }`}
           >
             <AlertCircle
-              className={`shrink-0 ${asset === "USDT" ? "text-emerald-500" : "text-orange-500"}`}
+              className={`shrink-0 ${
+                asset === "USDT" ? "text-emerald-500" : asset === "USDC" ? "text-sky-400" : "text-orange-500"
+              }`}
               size={20}
             />
             <div className="text-sm text-slate-300">
@@ -125,6 +197,11 @@ export const DepositModal: React.FC<DepositModalProps> = ({
               ) : asset === "USDT" ? (
                 <span>
                   Send only <strong className="text-white">USDT (ERC20)</strong>. This address is derived from our
+                  secure cold wallet specifically for your account.
+                </span>
+              ) : asset === "USDC" ? (
+                <span>
+                  Send only <strong className="text-white">USDC (ERC20)</strong>. This address is derived from our
                   secure cold wallet specifically for your account.
                 </span>
               ) : (
@@ -136,6 +213,43 @@ export const DepositModal: React.FC<DepositModalProps> = ({
             </div>
           </div>
 
+          {/* Amount entry */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between text-xs uppercase tracking-wider text-slate-500 font-bold">
+              <span>Requested amount</span>
+              <div className="flex gap-1 rounded-lg bg-slate-800 p-1">
+                <button
+                  onClick={() => setAmountCurrency("ASSET")}
+                  className={`px-2 py-1 rounded-md text-[11px] ${
+                    amountCurrency === "ASSET" ? "bg-slate-700 text-white" : "text-slate-400"
+                  }`}
+                >
+                  {asset}
+                </button>
+                <button
+                  onClick={() => setAmountCurrency("USD")}
+                  className={`px-2 py-1 rounded-md text-[11px] ${
+                    amountCurrency === "USD" ? "bg-slate-700 text-white" : "text-slate-400"
+                  }`}
+                >
+                  USD
+                </button>
+              </div>
+            </div>
+            <input
+              type="number"
+              min="0"
+              step="0.00000001"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              placeholder={`Enter ${amountCurrency === "USD" ? "USD" : asset} amount (optional)`}
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg text-sm text-slate-100 px-3 py-2"
+            />
+            <p className="text-[11px] text-slate-500">
+              Amount is encoded into the QR. For BTC, USD amounts are attached as a memo; no conversion is performed.
+            </p>
+          </div>
+
           {/* QR & Address */}
           <div className="flex flex-col items-center gap-6">
             <div className="bg-white p-3 rounded-xl shadow-lg relative">
@@ -145,7 +259,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({
                 </div>
               ) : (
                 <QRCodeSVG
-                  value={address || "Waiting for address"}
+                  value={qrValue}
                   size={160}
                   bgColor="#ffffff"
                   fgColor="#020617"
@@ -160,7 +274,7 @@ export const DepositModal: React.FC<DepositModalProps> = ({
             <div className="w-full">
               <label className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-2 block flex justify-between">
                 <span>Your {asset} Deposit Address</span>
-                {asset === "USDT" && !loading && (
+                {(asset === "USDT" || asset === "USDC") && !loading && (
                   <span className="text-[10px] text-emerald-500 flex items-center gap-1">
                     <ShieldCheck size={10} /> Secure HD Wallet
                   </span>
