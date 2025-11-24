@@ -1,5 +1,6 @@
 import React, { useState } from "react";
-import { ShieldCheck, Settings, RefreshCw, CheckCircle2 } from "lucide-react";
+import { ShieldCheck, Settings, RefreshCw, CheckCircle2, Download, Upload } from "lucide-react";
+import trezorLogo from "../trezor.svg";
 import { AppConfig, INITIAL_CONFIG } from "../models";
 
 type AdminPanelProps = {
@@ -12,6 +13,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
   const [successMsg, setSuccessMsg] = useState("");
   const [btcError, setBtcError] = useState<string | null>(null);
   const [ethError, setEthError] = useState<string | null>(null);
+  const [stateJson, setStateJson] = useState("");
+  const [stateMessage, setStateMessage] = useState<string | null>(null);
+
+  const CONFIG_STORAGE_KEY = "cryptovault_config_v1";
+  const CLIENTS_STORAGE_KEY = "cryptovault_clients_v1";
+  const DEPOSITS_STORAGE_KEY = "cryptovault_deposits_v1";
 
   const validateXpub = (xpub: string): string | null => {
     if (!xpub.trim()) {
@@ -69,6 +76,44 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
     }, 1500);
   };
 
+  const handleExportState = () => {
+    try {
+      const payload = {
+        config: JSON.parse(window.localStorage.getItem(CONFIG_STORAGE_KEY) || "{}"),
+        clients: JSON.parse(window.localStorage.getItem(CLIENTS_STORAGE_KEY) || "[]"),
+        deposits: JSON.parse(window.localStorage.getItem(DEPOSITS_STORAGE_KEY) || "[]"),
+      };
+      const pretty = JSON.stringify(payload, null, 2);
+      setStateJson(pretty);
+      setStateMessage("State exported. You can copy the JSON below for backup.");
+    } catch {
+      setStateMessage("Failed to export state from localStorage.");
+    }
+  };
+
+  const handleImportState = () => {
+    try {
+      if (!stateJson.trim()) {
+        setStateMessage("Paste a JSON payload before importing.");
+        return;
+      }
+      const parsed = JSON.parse(stateJson);
+      if (parsed.config) {
+        window.localStorage.setItem(CONFIG_STORAGE_KEY, JSON.stringify(parsed.config));
+      }
+      if (parsed.clients) {
+        window.localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(parsed.clients));
+      }
+      if (parsed.deposits) {
+        window.localStorage.setItem(DEPOSITS_STORAGE_KEY, JSON.stringify(parsed.deposits));
+      }
+      setStateMessage("State imported. Reload the page to apply all changes.");
+    } catch (e) {
+      console.error(e);
+      setStateMessage("Invalid JSON. Please check the payload and try again.");
+    }
+  };
+
   return (
     <div className="p-8 max-w-4xl mx-auto animate-fade-in">
       <div className="mb-8">
@@ -76,14 +121,27 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
         <p className="text-slate-400">
           Manage cold storage integration for automatic address generation.
         </p>
-        <p className="text-xs text-slate-500 mt-2 max-w-xl">
-          Only read-only master public keys (XPUBs) are stored locally in your browser. Private keys
-          remain on your hardware wallet or offline system.
-        </p>
-        <p className="text-xs text-slate-500 mt-1 max-w-xl">
-          This POC does not call any external exchange, blockchain explorer, or data API; all address
-          derivation happens entirely in your browser.
-        </p>
+
+        <div className="mt-4 bg-slate-900 border border-slate-700 rounded-2xl p-4 space-y-2">
+          <h3 className="text-xs font-semibold tracking-wider text-slate-400 uppercase">
+            Security Model (POC)
+          </h3>
+          <ul className="text-xs text-slate-300 space-y-1 list-disc list-inside">
+            <li>
+              XPUB-only: the app stores <span className="font-semibold">only</span> master public keys
+              (XPUBs) in your browser&apos;s localStorage; private keys never leave your hardware wallet
+              or offline system.
+            </li>
+            <li>
+              Non-custodial demo: this interface derives deposit addresses but does not hold funds,
+              broadcast transactions, or perform trading/matching.
+            </li>
+            <li>
+              Local-only logic: no external exchange, blockchain explorer, or third-party data APIs are
+              called as part of the wallet flow; address derivation happens entirely client-side.
+            </li>
+          </ul>
+        </div>
       </div>
 
       {successMsg && (
@@ -102,11 +160,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
           <div className="flex justify-between items-start mb-6">
             <div>
               <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <img
-                  src="https://upload.wikimedia.org/wikipedia/commons/5/56/Trezor_Logo_w_icon_White.svg"
-                  alt="Trezor"
-                  className="h-6 opacity-80"
-                />
+                <img src={trezorLogo} alt="Trezor" className="h-6 opacity-80" />
                 Hardware Wallet Integration
               </h3>
               <p className="text-sm text-slate-400 mt-1 max-w-lg">
@@ -158,6 +212,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
                   className="bg-slate-800 border border-slate-700 text-slate-200 text-sm rounded-lg block w-full p-2.5 font-mono"
                 />
                 {btcError && <p className="text-xs text-red-400">{btcError}</p>}
+                {!btcError && (
+                  <p className="text-[10px] text-slate-500">
+                    Expected: mainnet <code className="font-mono">xpub...</code> from a SegWit account
+                    (e.g. <code className="font-mono">m/84&apos;/0&apos;/0&apos;</code>). Testnet keys
+                    are not supported in this POC.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -185,8 +246,51 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
               <p className="text-xs text-slate-500 mt-1">
                 Used to generate USDT (ERC20) deposit addresses from your provided master public key.
               </p>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Paste an ETH mainnet account-level XPUB for <code className="font-mono">m/44&apos;/60&apos;/0&apos;</code>.
+                The app uses it only to derive read-only USDT (ERC20) deposit addresses per client.
+              </p>
             </div>
           </div>
+        </div>
+
+        <div className="bg-slate-900 border border-slate-700 rounded-2xl p-6 space-y-3">
+          <div className="flex items-center justify-between mb-2">
+            <div>
+              <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                State Export / Import
+              </h3>
+              <p className="text-xs text-slate-500">
+                Backup or restore XPUB configuration, clients, and mock deposit activity as JSON.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={handleExportState}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-600"
+              >
+                <Download size={14} />
+                Export
+              </button>
+              <button
+                type="button"
+                onClick={handleImportState}
+                className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs bg-slate-800 text-slate-100 hover:bg-slate-700 border border-slate-600"
+              >
+                <Upload size={14} />
+                Import
+              </button>
+            </div>
+          </div>
+          <textarea
+            value={stateJson}
+            onChange={(e) => setStateJson(e.target.value)}
+            rows={6}
+            className="w-full bg-slate-950 border border-slate-700 rounded-lg text-xs text-slate-200 font-mono p-2 resize-y"
+            placeholder='Click "Export" to populate with the current local state, or paste JSON here and click "Import".'
+          />
+          {stateMessage && <p className="text-[11px] text-slate-400">{stateMessage}</p>}
         </div>
       </div>
     </div>

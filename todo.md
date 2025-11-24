@@ -60,24 +60,25 @@ Goal: turn this demo into a self-contained proof of concept that:
 
 ## 7. Security & UX Messaging (Must Have)
 
-- [ ] (7.1) Add an in-app "Security Model" section:
-  - [ ] (7.2) Explain XPUB-only usage and that private keys stay off-device.
-  - [ ] (7.3) Clarify that this is a non-custodial, non-trading demo.
-- [ ] (7.4) Add inline help text near XPUB inputs explaining expected format and network.
-- [ ] (7.5) Add a top-level banner warning: "POC only - do not use for real funds."
+- [x] (7.1) Add an in-app "Security Model" section:
+  - [x] (7.2) Explain XPUB-only usage and that private keys stay off-device.
+  - [x] (7.3) Clarify that this is a non-custodial, non-trading demo.
+- [x] (7.4) Add inline help text near XPUB inputs explaining expected format and network.
+- [x] (7.5) Add a top-level banner warning: "POC only - do not use for real funds."
 
 ## 8. Documentation (Must Have)
 
-- [ ] (8.1) Update `README.md` with:
-  - [ ] (8.2) Add a short description of the new POC flow.
-  - [ ] (8.3) Document exact derivation path conventions for BTC and ETH/USDT.
-  - [ ] (8.4) Document instructions for supplying your own XPUBs and resetting state.
-  - [ ] (8.5) Clearly state that no external platforms are contacted.
-- [ ] (8.6) Add a brief "How to demo" script: admin setup → add clients → generate addresses.
+- [x] (8.1) Update `README.md` with:
+  - [x] (8.2) Add a short description of the new POC flow.
+  - [x] (8.3) Document exact derivation path conventions for BTC and ETH/USDT.
+  - [x] (8.4) Document instructions for supplying your own XPUBs and resetting state.
+  - [x] (8.5) Clearly state that no external platforms are contacted.
+- [x] (8.6) Add a brief "How to demo" script: admin setup → add clients → generate addresses.
 
 ## 9. Nice-to-Have (Optional for First POC)
 
-- [ ] (9.1) Add simple "Export state" / "Import state" JSON for XPUBs, clients, and mock activity.
+- [x] (9.1) Add simple "Export state" / "Import state" JSON for XPUBs, clients, and mock activity.
 - [ ] (9.2) Add optional passphrase/PIN to gate access to the Admin/XPUB screen (stored locally).
 - [ ] (9.3) Add per-client option to generate multiple deposit addresses (multiple indices) and label them.
 - [ ] (9.4) Add dark/light mode toggle for presentation.
+
