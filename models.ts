@@ -46,3 +46,12 @@ export const INITIAL_CONFIG: AppConfig = {
   trezorConnected: false
 };
 
+export type DepositEvent = {
+  id: string;
+  clientId: number;
+  clientName: string;
+  asset: "BTC" | "USDT";
+  derivationIndex: number;
+  address: string;
+  createdAt: string;
+};

@@ -8,14 +8,22 @@ type DepositModalProps = {
   onClose: () => void;
   user: UserProfile;
   config: AppConfig;
+  onRecordDeposit: (params: { client: UserProfile; asset: "BTC" | "USDT"; address: string }) => void;
 };
 
-export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, user, config }) => {
+export const DepositModal: React.FC<DepositModalProps> = ({
+  isOpen,
+  onClose,
+  user,
+  config,
+  onRecordDeposit,
+}) => {
   const [asset, setAsset] = useState<"BTC" | "USDT">("USDT");
   const [address, setAddress] = useState("");
   const [copied, setCopied] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastRecordedKey, setLastRecordedKey] = useState<string | null>(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -44,6 +52,14 @@ export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, use
       return () => clearTimeout(timer);
     }
   }, [asset, isOpen, config, user]);
+
+  useEffect(() => {
+    if (!isOpen || !address || error) return;
+    const key = `${user.id}-${asset}-${address}`;
+    if (key === lastRecordedKey) return;
+    onRecordDeposit({ client: user, asset, address });
+    setLastRecordedKey(key);
+  }, [isOpen, address, asset, error, lastRecordedKey, onRecordDeposit, user]);
 
   const copyToClipboard = () => {
     if (!address) return;
@@ -175,4 +191,3 @@ export const DepositModal: React.FC<DepositModalProps> = ({ isOpen, onClose, use
     </div>
   );
 };
-

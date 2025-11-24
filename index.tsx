@@ -16,13 +16,14 @@ import {
   AlertCircle,
   CheckCircle2
 } from 'lucide-react';
-import { AppConfig, INITIAL_CLIENTS, INITIAL_CONFIG, UserProfile } from "./models";
+import { AppConfig, INITIAL_CLIENTS, INITIAL_CONFIG, UserProfile, DepositEvent } from "./models";
 import { AdminPanel } from "./components/AdminPanel";
 import { DepositModal } from "./components/DepositModal";
 import { ClientDashboard } from "./components/ClientDashboard";
 
 const CONFIG_STORAGE_KEY = 'cryptovault_config_v1';
 const CLIENTS_STORAGE_KEY = 'cryptovault_clients_v1';
+const DEPOSITS_STORAGE_KEY = 'cryptovault_deposits_v1';
 
 const getInitialConfig = (): AppConfig => {
   if (typeof window === 'undefined') {
@@ -54,6 +55,21 @@ const getInitialClients = (): UserProfile[] => {
     return parsed;
   } catch {
     return INITIAL_CLIENTS;
+  }
+};
+
+const getInitialDeposits = (): DepositEvent[] => {
+  if (typeof window === 'undefined') {
+    return [];
+  }
+  try {
+    const stored = window.localStorage.getItem(DEPOSITS_STORAGE_KEY);
+    if (!stored) return [];
+    const parsed = JSON.parse(stored);
+    if (!Array.isArray(parsed)) return [];
+    return parsed;
+  } catch {
+    return [];
   }
 };
 
@@ -467,13 +483,14 @@ type DepositModalProps = {
 
 // --- Main Application ---
 
-const App = () => {
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [showDeposit, setShowDeposit] = useState(false);
-  const [isAdminMode, setIsAdminMode] = useState(false);
-  const [config, setConfig] = useState<AppConfig>(() => getInitialConfig());
-  const [clients, setClients] = useState<UserProfile[]>(() => getInitialClients());
-  const [selectedClientId, setSelectedClientId] = useState<number | null>(() => INITIAL_CLIENTS[0]?.id ?? null);
+  const App = () => {
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [showDeposit, setShowDeposit] = useState(false);
+    const [isAdminMode, setIsAdminMode] = useState(false);
+    const [config, setConfig] = useState<AppConfig>(() => getInitialConfig());
+    const [clients, setClients] = useState<UserProfile[]>(() => getInitialClients());
+    const [selectedClientId, setSelectedClientId] = useState<number | null>(() => INITIAL_CLIENTS[0]?.id ?? null);
+    const [deposits, setDeposits] = useState<DepositEvent[]>(() => getInitialDeposits());
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -484,16 +501,39 @@ const App = () => {
     }
   }, [config]);
 
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      window.localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(clients));
-    } catch {
-      // ignore persistence errors in demo
-    }
-  }, [clients]);
+    useEffect(() => {
+      if (typeof window === 'undefined') return;
+      try {
+        window.localStorage.setItem(CLIENTS_STORAGE_KEY, JSON.stringify(clients));
+      } catch {
+        // ignore persistence errors in demo
+      }
+    }, [clients]);
 
-  const selectedClient = clients.find((c) => c.id === selectedClientId) ?? clients[0];
+    useEffect(() => {
+      if (typeof window === 'undefined') return;
+      try {
+        window.localStorage.setItem(DEPOSITS_STORAGE_KEY, JSON.stringify(deposits));
+      } catch {
+        // ignore persistence errors in demo
+      }
+    }, [deposits]);
+ 
+    const selectedClient = clients.find((c) => c.id === selectedClientId) ?? clients[0];
+
+    const handleRecordDeposit = (params: { client: UserProfile; asset: "BTC" | "USDT"; address: string }) => {
+      if (!params.address) return;
+      const event: DepositEvent = {
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        clientId: params.client.id,
+        clientName: params.client.name,
+        asset: params.asset,
+        derivationIndex: params.client.derivationIndex,
+        address: params.address,
+        createdAt: new Date().toISOString()
+      };
+      setDeposits(prev => [event, ...prev]);
+    };
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-200 font-sans selection:bg-blue-500/30">

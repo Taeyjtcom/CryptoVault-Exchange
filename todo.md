@@ -46,11 +46,11 @@ Goal: turn this demo into a self-contained proof of concept that:
 
 ## 5. Recent Activity View (Must Have for POC UX, Mocked)
 
-- [ ] (5.1) Implement a simple mocked "Recent Deposits" table that:
-  - [ ] (5.2) Record when a deposit address is generated/shown to the user.
-  - [ ] (5.3) Tie each record to client, asset, and derivation index.
-- [ ] (5.4) Persist these mock events in `localStorage` for demonstration.
-- [ ] (5.5) Clearly label all activity as simulated / mock (no real chain data).
+- [x] (5.1) Implement a simple mocked "Recent Deposits" table that:
+  - [x] (5.2) Record when a deposit address is generated/shown to the user.
+  - [x] (5.3) Tie each record to client, asset, and derivation index.
+- [x] (5.4) Persist these mock events in `localStorage` for demonstration.
+- [x] (5.5) Clearly label all activity as simulated / mock (no real chain data).
 
 ## 6. No External Integrations (Must Enforce)
 

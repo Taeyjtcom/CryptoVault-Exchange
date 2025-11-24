@@ -1,6 +1,6 @@
 import React from "react";
 import { TrendingUp } from "lucide-react";
-import { UserProfile } from "../models";
+import { UserProfile, DepositEvent } from "../models";
 
 type BalanceCardProps = {
   label: string;
@@ -39,9 +39,10 @@ const BalanceCard: React.FC<BalanceCardProps> = ({ label, amount, currency, tren
 
 type ClientDashboardProps = {
   client: UserProfile | undefined;
+  deposits: DepositEvent[];
 };
 
-export const ClientDashboard: React.FC<ClientDashboardProps> = ({ client }) => {
+export const ClientDashboard: React.FC<ClientDashboardProps> = ({ client, deposits }) => {
   const balances = client?.balance ?? { btc: 0, usdt: 0, usd: 0 };
 
   return (
@@ -56,45 +57,52 @@ export const ClientDashboard: React.FC<ClientDashboardProps> = ({ client }) => {
       {/* Recent Activity Mock */}
       <div className="bg-slate-900/50 border border-slate-800 rounded-2xl overflow-hidden shadow-sm">
         <div className="px-6 py-4 border-b border-slate-800 flex justify-between items-center">
-          <h3 className="font-semibold text-white">Recent Transactions</h3>
-          <button className="text-sm text-blue-400 hover:text-blue-300 transition-colors">View All</button>
+          <h3 className="font-semibold text-white">Recent Deposit Activity (Simulated)</h3>
+          <span className="text-[10px] text-slate-500">Derived addresses only, no on-chain data</span>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm text-slate-400">
             <thead className="bg-slate-900 text-xs uppercase font-semibold text-slate-500">
               <tr>
-                <th className="px-6 py-3">Type</th>
+                <th className="px-6 py-3">Client</th>
                 <th className="px-6 py-3">Asset</th>
-                <th className="px-6 py-3">Amount</th>
-                <th className="px-6 py-3">Status</th>
+                <th className="px-6 py-3">Derivation Index</th>
+                <th className="px-6 py-3">Address (prefix)</th>
                 <th className="px-6 py-3">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-800">
-              {[1, 2, 3].map((_, i) => (
-                <tr key={i} className="hover:bg-slate-900/60 transition-colors">
+              {deposits.map((event) => (
+                <tr key={event.id} className="hover:bg-slate-900/60 transition-colors">
+                  <td className="px-6 py-4">{event.clientName}</td>
+                  <td className="px-6 py-4">{event.asset}</td>
                   <td className="px-6 py-4">
-                    <span className="inline-flex items-center gap-1 text-emerald-400">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Deposit
+                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                      m/…/{event.derivationIndex}
                     </span>
                   </td>
-                  <td className="px-6 py-4">{i === 0 ? "USDT" : "BTC"}</td>
-                  <td className="px-6 py-4">{i === 0 ? "2 500.00" : "0.050"}</td>
-                  <td className="px-6 py-4">
-                    <span className="inline-flex items-center gap-1 text-xs px-2 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                      Confirmed
-                    </span>
+                  <td className="px-6 py-4 font-mono text-xs text-slate-300">
+                    {event.address.slice(0, 8)}…
                   </td>
-                  <td className="px-6 py-4 text-slate-500">2025-01-0{i + 1}</td>
+                  <td className="px-6 py-4 text-slate-500 text-xs">
+                    {new Date(event.createdAt).toLocaleString()}
+                  </td>
                 </tr>
               ))}
+              {deposits.length === 0 && (
+                <tr>
+                  <td className="px-6 py-4 text-slate-500 text-xs" colSpan={5}>
+                    No derived deposit addresses yet. Open the Deposit dialog to generate one.
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         </div>
       </div>
 
       <div className="text-xs text-slate-500 text-right">
-        All transaction data is simulated for demonstration purposes.
+        All deposit activity above is simulated and based only on locally derived addresses.
       </div>
     </div>
   );
