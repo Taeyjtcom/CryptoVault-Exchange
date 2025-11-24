@@ -1,0 +1,48 @@
+export interface UserProfile {
+  id: number;
+  name: string;
+  email: string;
+  role: 'client' | 'admin';
+  balance: {
+    btc: number;
+    usdt: number;
+    usd: number;
+  };
+  // The unique index for this user in the HD wallet tree (m/44'/60'/0'/0/index)
+  derivationIndex: number;
+  // Optional free-form notes/tags for this client
+  notes?: string;
+}
+
+export interface AppConfig {
+  // Master Public Keys (from Trezor/Cold Storage)
+  btcMasterXpub: string;
+  ethMasterXpub: string; // Used for USDT-ERC20
+  trezorConnected: boolean;
+}
+
+// --- Mock / Initial Data ---
+
+export const INITIAL_CLIENTS: UserProfile[] = [
+  {
+    id: 1,
+    name: "Alex Trader",
+    email: "alex@example.com",
+    role: 'client',
+    derivationIndex: 1,
+    balance: {
+      btc: 0.45,
+      usdt: 12500.0,
+      usd: 450.2
+    },
+    notes: "Example seeded client for demo"
+  }
+];
+
+export const INITIAL_CONFIG: AppConfig = {
+  // Start with empty XPUBs; user or admin must provide them
+  btcMasterXpub: "",
+  ethMasterXpub: "",
+  trezorConnected: false
+};
+

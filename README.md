@@ -22,9 +22,14 @@ The app focuses on:
 - The admin panel lets you paste **master public keys (XPUBs)** for BTC and ETH (no private keys are ever stored).
 - XPUB configuration is saved in your browser's `localStorage` so it persists across reloads and stays on your machine.
 - For a given client, the app derives:
-  - A USDT (ERC‑20) deposit address from the ETH XPUB using `ethers` and standard HD paths.
-  - A BTC deposit address using a simplified mock derivation (for UI demonstration only).
-- Each client gets a deterministic deposit address from the HD tree, so deposits can be credited on the exchange side while funds stay under cold‑wallet control.
+  - A USDT (ERC-20) deposit address from the ETH XPUB using `ethers` and standard HD paths.
+  - A BTC deposit address using a deterministic HD derivation helper (for UI demonstration only, not a full Bitcoin implementation).
+- Each client gets a deterministic deposit address from the HD tree, so deposits can be credited on the exchange side while funds stay under cold-wallet control.
+
+### Derivation Paths (POC)
+
+- USDT (ETH/XPUB): `m/44'/60'/0'/0/index` (external chain, index per client).
+- BTC (XPUB): simulated `m/84'/0'/0'/0/index`-style external chain; derived via a generic HD node helper from `ethers` to produce a stable, bech32-like address string for UI purposes.
 
 ## Tech Stack
 

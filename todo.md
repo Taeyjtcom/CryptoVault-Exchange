@@ -30,19 +30,19 @@ Goal: turn this demo into a self-contained proof of concept that:
 
 ## 3. Address Derivation Logic (Must Have)
 
-- [ ] (3.1) Keep ETH/USDT derivation using XPUB + `ethers.HDNodeWallet.fromExtendedKey`.
-- [ ] (3.2) Use a standard derivation path convention and document it (e.g. `m/44'/60'/0'/0/index`).
-- [ ] (3.3) Replace the mock BTC derivation with a deterministic, library-based function (e.g. via `bitcoinjs-lib` or similar) **without** external network calls.
-- [ ] (3.4) Handle and display derivation errors gracefully (invalid XPUB, wrong network, etc.).
+- [x] (3.1) Keep ETH/USDT derivation using XPUB + `ethers.HDNodeWallet.fromExtendedKey`.
+- [x] (3.2) Use a standard derivation path convention and document it (e.g. `m/44'/60'/0'/0/index`).
+- [x] (3.3) Replace the mock BTC derivation with a deterministic, library-based function (e.g. via `bitcoinjs-lib` or similar) **without** external network calls.
+- [x] (3.4) Handle and display derivation errors gracefully (invalid XPUB, wrong network, etc.).
 - [ ] (3.5) Add unit-test-style helpers (or a small test harness) to confirm deterministic address generation for sample XPUBs and indexes.
 
 ## 4. Deposit Flow (Must Have)
 
-- [ ] (4.1) Update the "Deposit Funds" modal to work with a selectable client (not just a single mock user).
-- [ ] (4.2) Show derived BTC and USDT addresses for the chosen client and asset.
+- [x] (4.1) Update the "Deposit Funds" modal to work with a selectable client (not just a single mock user).
+- [x] (4.2) Show derived BTC and USDT addresses for the chosen client and asset.
 - [ ] (4.3) Replace external QR code API calls with a local QR generator library (no HTTP requests).
-- [ ] (4.4) Add "Copy address" and visual confirmation (already present, verify it works for all assets).
-- [ ] (4.5) Add clear warnings: "Send only USDT (ERC-20)" vs "Send only BTC" for each address.
+- [x] (4.4) Add "Copy address" and visual confirmation (already present, verify it works for all assets).
+- [x] (4.5) Add clear warnings: "Send only USDT (ERC-20)" vs "Send only BTC" for each address.
 
 ## 5. Recent Activity View (Must Have for POC UX, Mocked)
 

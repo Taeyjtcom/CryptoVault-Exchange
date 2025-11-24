@@ -545,42 +545,21 @@ const App = () => {
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Header */}
-          <header className="h-16 border-b border-slate-800/50 flex items-center justify-between px-8 bg-slate-950/50 backdrop-blur-md">
-            <div className="flex items-center gap-4">
-              <h2 className="text-lg font-medium text-slate-200">
-                {isAdminMode ? 'Platform Administration' : 'Client Overview'}
-              </h2>
-              {!isAdminMode && (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-slate-500">Active client:</span>
-                  <select
-                    className="bg-slate-900 border border-slate-700 text-xs text-slate-200 rounded-lg px-2 py-1"
-                    value={selectedClientId ?? ''}
-                    onChange={(e) => {
-                      const id = Number(e.target.value);
-                      setSelectedClientId(Number.isNaN(id) ? null : id);
-                    }}
-                  >
-                    {clients.map((client) => (
-                      <option key={client.id} value={client.id}>
-                        {client.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              )}
-            </div>
-            <div className="flex items-center gap-4">
-              {!isAdminMode && selectedClient && (
-                <button 
-                  onClick={() => setShowDeposit(true)}
-                  className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors shadow-lg shadow-blue-900/20 active:scale-95"
-                >
-                  <QrCode size={16} />
-                  Deposit Funds
-                </button>
-              )}
-              <div className="h-8 w-px bg-slate-800 mx-2"></div>
+        <header className="h-16 border-b border-slate-800/50 flex items-center justify-between px-8 bg-slate-950/50 backdrop-blur-md">
+          <h2 className="text-lg font-medium text-slate-200">
+            {isAdminMode ? 'Platform Administration' : 'Client Overview'}
+          </h2>
+          <div className="flex items-center gap-4">
+            {!isAdminMode && selectedClient && (
+              <button 
+                onClick={() => setShowDeposit(true)}
+                className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors shadow-lg shadow-blue-900/20 active:scale-95"
+              >
+                <QrCode size={16} />
+                Deposit Funds
+              </button>
+            )}
+            <div className="h-8 w-px bg-slate-800 mx-2"></div>
               <div className="flex items-center gap-3">
                 <div className="text-right hidden md:block">
                   <div className="text-sm font-medium text-white">
@@ -594,8 +573,8 @@ const App = () => {
                   <User size={20} className="text-slate-300" />
                 </div>
               </div>
-            </div>
-          </header>
+          </div>
+        </header>
 
         {/* View Content */}
         <main className="flex-1 overflow-y-auto bg-slate-950 p-6 relative">
