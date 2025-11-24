@@ -96,32 +96,6 @@ const SidebarItem = ({ icon: Icon, label, active, onClick }: SidebarItemProps) =
   </div>
 );
 
-type BalanceCardProps = {
-  label: string;
-  amount: number;
-  currency: string;
-  trend: number;
-};
-
-export const BalanceCard = ({ label, amount, currency, trend }: BalanceCardProps) => (
-  <div className="bg-slate-800/50 border border-slate-700/50 p-6 rounded-2xl flex flex-col gap-2 relative overflow-hidden group">
-    <div className="absolute top-0 right-0 p-4 opacity-5 group-hover:opacity-10 transition-opacity">
-      <Wallet size={60} />
-    </div>
-    <span className="text-slate-400 text-sm font-medium z-10">{label}</span>
-    <div className="flex items-baseline gap-2 z-10">
-      <span className="text-2xl font-bold text-white">
-        {currency === 'USD' ? '$' : ''}{amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })} 
-        {currency !== 'USD' && <span className="text-sm ml-1 text-slate-500">{currency}</span>}
-      </span>
-    </div>
-    <div className={`text-xs font-medium flex items-center gap-1 z-10 ${trend > 0 ? 'text-emerald-500' : 'text-red-500'}`}>
-      <TrendingUp size={12} />
-      {trend > 0 ? '+' : ''}{trend}% this week
-    </div>
-  </div>
-);
-
 type AdminPanelProps = {
   config: AppConfig;
   setConfig: React.Dispatch<React.SetStateAction<AppConfig>>;
@@ -714,6 +688,7 @@ type DepositModalProps = {
             onClose={() => setShowDeposit(false)} 
             user={selectedClient}
             config={config}
+            onRecordDeposit={handleRecordDeposit}
           />
         )}
     </div>

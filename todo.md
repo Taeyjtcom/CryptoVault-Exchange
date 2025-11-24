@@ -40,7 +40,7 @@ Goal: turn this demo into a self-contained proof of concept that:
 
 - [x] (4.1) Update the "Deposit Funds" modal to work with a selectable client (not just a single mock user).
 - [x] (4.2) Show derived BTC and USDT addresses for the chosen client and asset.
-- [ ] (4.3) Replace external QR code API calls with a local QR generator library (no HTTP requests).
+- [x] (4.3) Replace external QR code API calls with a local QR generator library (no HTTP requests).
 - [x] (4.4) Add "Copy address" and visual confirmation (already present, verify it works for all assets).
 - [x] (4.5) Add clear warnings: "Send only USDT (ERC-20)" vs "Send only BTC" for each address.
 
@@ -54,9 +54,9 @@ Goal: turn this demo into a self-contained proof of concept that:
 
 ## 6. No External Integrations (Must Enforce)
 
-- [ ] (6.1) Remove or replace any HTTP calls (e.g. external QR code APIs).
-- [ ] (6.2) Ensure there are no calls to exchange APIs, blockchain explorers, or data providers.
-- [ ] (6.3) Add a small "No external connections" note on the Admin/Settings screen.
+- [x] (6.1) Remove or replace any HTTP calls (e.g. external QR code APIs).
+- [x] (6.2) Ensure there are no calls to exchange APIs, blockchain explorers, or data providers.
+- [x] (6.3) Add a small "No external connections" note on the Admin/Settings screen.
 
 ## 7. Security & UX Messaging (Must Have)
 

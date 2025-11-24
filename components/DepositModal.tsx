@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { AlertCircle, LogOut, QrCode, RefreshCw, ShieldCheck, Copy } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 import { AppConfig, UserProfile } from "../models";
 import { deriveUsdtAddress, deriveBtcAddress } from "../crypto";
 
@@ -143,10 +144,12 @@ export const DepositModal: React.FC<DepositModalProps> = ({
                   <RefreshCw className="animate-spin text-slate-400" size={32} />
                 </div>
               ) : (
-                <img
-                  src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=${address}`}
-                  alt="Deposit QR"
-                  className="w-40 h-40"
+                <QRCodeSVG
+                  value={address || "Waiting for address"}
+                  size={160}
+                  bgColor="#ffffff"
+                  fgColor="#020617"
+                  includeMargin
                 />
               )}
               <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 bg-slate-900 text-slate-300 text-[10px] px-2 py-0.5 rounded-full border border-slate-700 shadow-sm whitespace-nowrap">

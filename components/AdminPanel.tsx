@@ -80,6 +80,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
           Only read-only master public keys (XPUBs) are stored locally in your browser. Private keys
           remain on your hardware wallet or offline system.
         </p>
+        <p className="text-xs text-slate-500 mt-1 max-w-xl">
+          This POC does not call any external exchange, blockchain explorer, or data API; all address
+          derivation happens entirely in your browser.
+        </p>
       </div>
 
       {successMsg && (
@@ -188,4 +192,3 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({ config, setConfig }) => 
     </div>
   );
 };
-
